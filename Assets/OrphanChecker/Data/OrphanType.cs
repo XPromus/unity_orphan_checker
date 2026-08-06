@@ -2,6 +2,6 @@ namespace OrphanChecker.Data
 {
     public enum OrphanType
     {
-        Script, Material 
+        Script, Material, Prefab
     }
 }

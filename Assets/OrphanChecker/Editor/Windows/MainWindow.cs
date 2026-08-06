@@ -2,10 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using NUnit.Framework;
 using OrphanChecker.Data;
 using UnityEditor;
-using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -18,6 +16,14 @@ namespace OrphanChecker.Editor.Windows
         private VisualElement _orphanListContainer;
 
         private StyleSheet _styleSheet;
+
+        private readonly Settings _settings;
+        private const int DefaultHeaderFontSize = 24;
+
+        public MainWindow(Settings settings)
+        {
+            _settings = settings;
+        }
         
         public VisualElement Create()
         {
@@ -35,12 +41,10 @@ namespace OrphanChecker.Editor.Windows
             _styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/OrphanChecker/Editor/OrphanChecker.uss");
             container.styleSheets.Add(_styleSheet);
             
-            var checkButton = new Button(() =>
+            var checkButton = new Button(FullReload)
             {
-                FullReload();
-            })
-            {
-                text = "Check"
+                text = "Check",
+                style = { width = Length.Percent(100) }
             };
             
             container.Add(checkButton);
@@ -60,7 +64,8 @@ namespace OrphanChecker.Editor.Windows
                 RebuildOrphanList();
             })
             {
-                text = "Clear Selected"
+                text = "Clear Selected",
+                style = { width = Length.Percent(100) }
             };
             container.Add(clearSelectedButton);
 
@@ -74,7 +79,8 @@ namespace OrphanChecker.Editor.Windows
                 FullReload();
             })
             {
-                text = "Selected To Trash"
+                text = "Selected To Trash",
+                style = { width = Length.Percent(100) }
             };
             moveSelectedToTrashButton.AddToClassList("deleteButton");
             container.Add(moveSelectedToTrashButton);
@@ -90,11 +96,12 @@ namespace OrphanChecker.Editor.Windows
             })
             {
                 text = "Delete Selected",
+                style = { width = Length.Percent(100) }
             };
             deleteSelectedButton.AddToClassList("deleteButton");
             container.Add(deleteSelectedButton);
             
-            RebuildOrphanList();
+            FullReload();
             return container;
         }
         
@@ -102,112 +109,22 @@ namespace OrphanChecker.Editor.Windows
         {
             _orphanListContainer.Clear();
 
-            var materialContainer = new VisualElement();
-            materialContainer.Add(new Label("Materials")
-            {
-                style =
-                {
-                    fontSize = 24,
-                    unityFontStyleAndWeight = FontStyle.Bold
-                }
-            });
-            var materialOrphanCounter = GetOrphanCount(OrphanType.Material);
-            var materialOrphanCounterLabel = new Label
-            {
-                text = $"{materialOrphanCounter} orphans",
-                style =
-                {
-                    fontSize = 18,
-                    unityFontStyleAndWeight = FontStyle.Bold,
-                }
-            };
-            materialOrphanCounterLabel.AddToClassList(materialOrphanCounter == 0 ? "good" : "danger");
-            materialContainer.Add(materialOrphanCounterLabel);
-
-            var scriptsContainer = new VisualElement();
-            scriptsContainer.Add(new Label("Scripts")
-            {
-                style =
-                {
-                    fontSize = 24,
-                    unityFontStyleAndWeight = FontStyle.Bold
-                }
-            });
-            var scriptOrphanCounter = GetOrphanCount(OrphanType.Script);
-            var scriptOrphanCounterLabel = new Label
-            {
-                text = $"{scriptOrphanCounter} orphans",
-                style =
-                {
-                    fontSize = 18,
-                    unityFontStyleAndWeight = FontStyle.Bold
-                }
-            };
-            scriptOrphanCounterLabel.AddToClassList(scriptOrphanCounter == 0 ? "good" : "danger");
-            scriptsContainer.Add(scriptOrphanCounterLabel);
+            var scriptsContainer = CreateOrphanContainer("Materials", OrphanType.Script);
+            var prefabsContainer = CreateOrphanContainer("Prefabs", OrphanType.Prefab);
+            var materialContainer = CreateOrphanContainer("Materials", OrphanType.Material);
             
             for (var i = 0; i < _orphans.Count; i++)
             {
-                var newOrphanContainer = new VisualElement
-                {
-                    style =
-                    {
-                        flexDirection = FlexDirection.Row,
-                        alignItems = Align.Center
-                    }
-                };
                 switch (_orphans[i].Type)
                 {
                     case OrphanType.Script:
-                        newOrphanContainer.Add(new Label(Path.GetFileNameWithoutExtension(_orphans[i].Path)));
-                        scriptsContainer.Add(newOrphanContainer);
+                        scriptsContainer.Add(CreateOrphanEntry(i));
+                        break;
+                    case OrphanType.Prefab:
+                        prefabsContainer.Add(CreateOrphanEntry(i));
                         break;
                     case OrphanType.Material:
-                        var index = i;
-                        
-                        var toggle = new Toggle { value = _orphans[index].Toggled };
-                        toggle.RegisterValueChangedCallback(evt =>
-                        {
-                            var orphan = _orphans[index];
-                            orphan.Toggled = evt.newValue;
-                            _orphans[index] = orphan;
-                            
-                            RebuildOrphanList();
-                        });
-                        newOrphanContainer.Add(toggle);
-
-
-                        var showButton = new Button(() =>
-                        {
-                            Utils.PingAsset(_orphans[index].Path);
-                        })
-                        {
-                            text = "Show"
-                        };
-                        newOrphanContainer.Add(showButton);
-
-                        var deleteButton = new Button(() =>
-                        {
-                            AssetDatabase.MoveAssetToTrash(_orphans[index].Path);
-                            AssetDatabase.Refresh();
-                            FullReload();
-                        })
-                        {
-                            text = "Delete"
-                        };
-                        deleteButton.AddToClassList("deleteButton");
-                        newOrphanContainer.Add(deleteButton);
-
-                        var orphanLabel = new Label
-                        {
-                            text = Path.GetFileNameWithoutExtension(_orphans[index].Path),
-                            style =
-                            {
-                                unityFontStyleAndWeight = _orphans[index].Toggled ? FontStyle.Bold : FontStyle.Normal
-                            }
-                        };
-                        newOrphanContainer.Add(orphanLabel);
-                        materialContainer.Add(newOrphanContainer);
+                        materialContainer.Add(CreateOrphanEntry(i));
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -217,11 +134,108 @@ namespace OrphanChecker.Editor.Windows
             _orphanListContainer.Add(Utils.CreateDivider());
             _orphanListContainer.Add(scriptsContainer);
             _orphanListContainer.Add(Utils.CreateDivider());
+            _orphanListContainer.Add(prefabsContainer);
+            _orphanListContainer.Add(Utils.CreateDivider());
             _orphanListContainer.Add(materialContainer);
             _orphanListContainer.Add(Utils.CreateDivider());
         }
 
-        private void FullReload()
+        private VisualElement CreateOrphanContainer(string title, OrphanType type)
+        {
+            var container = new VisualElement();
+            container.Add(new Label(title)
+            {
+                style =
+                {
+                    fontSize = DefaultHeaderFontSize * _settings.Scale,
+                    unityFontStyleAndWeight = FontStyle.Bold
+                }
+            });
+            var orphanTypeCounter = GetOrphanCount(type);
+            var orphanTypeCounterLabel = new Label
+            {
+                text = $"{orphanTypeCounter} orphans",
+                style =
+                {
+                    fontSize = 18,
+                    unityFontStyleAndWeight = FontStyle.Bold,
+                }
+            };
+            orphanTypeCounterLabel.AddToClassList(orphanTypeCounter == 0 ? "good" : "danger");
+            container.Add(orphanTypeCounterLabel);
+
+            return container;
+        }
+        
+        private VisualElement CreateOrphanEntry(int index)
+        {
+            var container = new VisualElement
+            {
+                style =
+                {
+                    flexDirection = FlexDirection.Row,
+                    alignItems = Align.Center
+                }
+            };
+            
+            var toggle = new Toggle { value = _orphans[index].Toggled };
+            toggle.RegisterValueChangedCallback(evt =>
+            {
+                var orphan = _orphans[index];
+                orphan.Toggled = evt.newValue;
+                _orphans[index] = orphan;
+                            
+                RebuildOrphanList();
+            });
+            container.Add(toggle);
+            
+            var showButton = new Button(() =>
+            {
+                Utils.PingAsset(_orphans[index].Path);
+            })
+            {
+                text = "Show"
+            };
+            container.Add(showButton);
+
+            var deleteButton = new Button(() =>
+            {
+                AssetDatabase.DeleteAsset(_orphans[index].Path);
+                AssetDatabase.Refresh();
+                FullReload();
+            })
+            {
+                text = "Delete"
+            };
+            deleteButton.AddToClassList("deleteButton");
+            container.Add(deleteButton);
+
+            var trashButton = new Button(() =>
+            {
+                AssetDatabase.MoveAssetToTrash(_orphans[index].Path);
+                AssetDatabase.Refresh();
+                FullReload();
+            })
+            {
+                text = "Trash"
+            };
+            trashButton.AddToClassList("deleteButton");
+            container.Add(trashButton);
+            
+            var orphanLabel = new Label
+            {
+                text = Path.GetFileNameWithoutExtension(_orphans[index].Path),
+                style =
+                {
+                    unityFontStyleAndWeight = _orphans[index].Toggled ? FontStyle.Bold : FontStyle.Normal
+                }
+            };
+            container.Add(orphanLabel);
+            
+            return container;
+        }
+
+        public void FullReload()
         {
             _referenceCounts = OrphanScanner.BuildReferenceCounts();
             _orphans = OrphanScanner.FindOrphans(_referenceCounts);

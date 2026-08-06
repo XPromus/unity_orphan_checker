@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using OrphanChecker.Data;
+using UnityEngine;
 using UnityEditor;
 
 namespace OrphanChecker.Editor
@@ -44,7 +46,8 @@ namespace OrphanChecker.Editor
         {
             var orphans = new List<Orphan>();
             AddOrphans(counts, orphans, "t:Material", OrphanType.Material);
-            AddOrphans(counts, orphans, "t:MonoScript", OrphanType.Script);
+            AddOrphans(counts, orphans, "t:Prefab", OrphanType.Prefab);
+            AddOrphans(counts, orphans, "t:MonoScript", OrphanType.Script, IsMonoBehaviourScript);
             return orphans;
         }
 
@@ -53,11 +56,14 @@ namespace OrphanChecker.Editor
             Dictionary<string, int> counts,
             List<Orphan> orphans,
             string filter,
-            OrphanType type
+            OrphanType type,
+            Func<string, bool> isValid = null
         )
         {
             foreach (var guid in AssetDatabase.FindAssets(filter, new[] { "Assets" }))
             {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                if (isValid != null && !isValid(path)) continue;
                 if (!counts.ContainsKey(guid))
                 {
                     orphans.Add(new Orphan
@@ -68,6 +74,12 @@ namespace OrphanChecker.Editor
                     });
                 }
             }
+        }
+
+        private static bool IsMonoBehaviourScript(string path)
+        {
+            var type = AssetDatabase.LoadAssetAtPath<MonoScript>(path)?.GetClass();
+            return type != null && typeof(MonoBehaviour).IsAssignableFrom(type);
         }
 
         private static bool IsScannable(string path)
