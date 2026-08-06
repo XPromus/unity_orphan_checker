@@ -9,37 +9,20 @@ using UnityEngine.UIElements;
 
 namespace OrphanChecker.Editor.Windows
 {
-    public class MainWindow
+    public class MainWindow : Window
     {
         private List<Orphan> _orphans = new();
         private Dictionary<string, int> _referenceCounts;
         private VisualElement _orphanListContainer;
 
         private StyleSheet _styleSheet;
-
-        private readonly Settings _settings;
-        private const int DefaultHeaderFontSize = 24;
-
-        public MainWindow(Settings settings)
-        {
-            _settings = settings;
-        }
         
-        public VisualElement Create()
+        private const int DefaultHeaderFontSize = 24;
+        
+        public override VisualElement Create()
         {
-            var container = new VisualElement
-            {
-                style =
-                {
-                    paddingBottom = 10,
-                    paddingTop = 10,
-                    paddingLeft = 10,
-                    paddingRight = 10
-                }
-            };
-
             _styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/OrphanChecker/Editor/OrphanChecker.uss");
-            container.styleSheets.Add(_styleSheet);
+            Container.styleSheets.Add(_styleSheet);
             
             var checkButton = new Button(FullReload)
             {
@@ -47,10 +30,10 @@ namespace OrphanChecker.Editor.Windows
                 style = { width = Length.Percent(100) }
             };
             
-            container.Add(checkButton);
+            Container.Add(checkButton);
 
             _orphanListContainer = new VisualElement();
-            container.Add(_orphanListContainer);
+            Container.Add(_orphanListContainer);
 
             var clearSelectedButton = new Button(() =>
             {
@@ -67,7 +50,7 @@ namespace OrphanChecker.Editor.Windows
                 text = "Clear Selected",
                 style = { width = Length.Percent(100) }
             };
-            container.Add(clearSelectedButton);
+            Container.Add(clearSelectedButton);
 
             var moveSelectedToTrashButton = new Button(() =>
             {
@@ -83,7 +66,7 @@ namespace OrphanChecker.Editor.Windows
                 style = { width = Length.Percent(100) }
             };
             moveSelectedToTrashButton.AddToClassList("deleteButton");
-            container.Add(moveSelectedToTrashButton);
+            Container.Add(moveSelectedToTrashButton);
             
             var deleteSelectedButton = new Button(() =>
             {
@@ -99,10 +82,10 @@ namespace OrphanChecker.Editor.Windows
                 style = { width = Length.Percent(100) }
             };
             deleteSelectedButton.AddToClassList("deleteButton");
-            container.Add(deleteSelectedButton);
+            Container.Add(deleteSelectedButton);
             
             FullReload();
-            return container;
+            return Container;
         }
         
         private void RebuildOrphanList()
@@ -147,7 +130,7 @@ namespace OrphanChecker.Editor.Windows
             {
                 style =
                 {
-                    fontSize = DefaultHeaderFontSize * _settings.Scale,
+                    fontSize = DefaultHeaderFontSize * Settings.Scale,
                     unityFontStyleAndWeight = FontStyle.Bold
                 }
             });
@@ -235,7 +218,7 @@ namespace OrphanChecker.Editor.Windows
             return container;
         }
 
-        public void FullReload()
+        public override void FullReload()
         {
             _referenceCounts = OrphanScanner.BuildReferenceCounts();
             _orphans = OrphanScanner.FindOrphans(_referenceCounts);

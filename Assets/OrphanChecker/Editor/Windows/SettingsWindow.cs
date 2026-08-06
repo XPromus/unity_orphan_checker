@@ -4,32 +4,15 @@ using UnityEngine.UIElements;
 
 namespace OrphanChecker.Editor.Windows
 {
-    public class SettingsWindow
+    public class SettingsWindow : Window
     {
-        private Settings _settings;
         private VisualElement _settingsContainer;
         
         private const int DefaultHeaderFontSize = 24;
-
-        public SettingsWindow(Settings settings)
-        {
-            _settings = settings;
-        }
+        private const int DefaultSubHeaderFontSize = 20;
         
-        public VisualElement Create()
+        public override VisualElement Create()
         {
-            var container = new VisualElement
-            {
-                style =
-                {
-                    flexDirection = FlexDirection.Column,
-                    paddingBottom = 10,
-                    paddingTop = 10,
-                    paddingLeft = 10,
-                    paddingRight = 10
-                }
-            };
-            
             _settingsContainer = new VisualElement();
             
             RenderInterface();
@@ -40,17 +23,23 @@ namespace OrphanChecker.Editor.Windows
                 style = { width = Length.Percent(100) }
             };
             
-            container.Add(_settingsContainer);
-            container.Add(Utils.CreateDivider());
-            container.Add(applyButton);
+            Container.Add(_settingsContainer);
+            Container.Add(Utils.CreateDivider());
+            Container.Add(applyButton);
             
-            return container;
+            return Container;
+        }
+
+        public override void FullReload()
+        {
+            throw new System.NotImplementedException();
         }
 
         private void RenderInterface()
         {
             _settingsContainer.Clear();
             
+            _settingsContainer.Add(GetSettingsHeader("Visuals"));
             var fontScaleInput = new FloatField
             {
                 value = 1f,
@@ -63,7 +52,7 @@ namespace OrphanChecker.Editor.Windows
             };
             fontScaleInput.RegisterValueChangedCallback(evt =>
             {
-                _settings.Scale = evt.newValue;
+                Settings.Scale = evt.newValue;
             });
             
             _settingsContainer.Add(fontScaleInput);
@@ -78,57 +67,22 @@ namespace OrphanChecker.Editor.Windows
                 style = { width = Length.Percent(100) }
             };
             
-            container.Add(new Label("Filetypes")
-            {
-                style =
-                {
-                    fontSize = DefaultHeaderFontSize,
-                    marginBottom = 10
-                }
-            });
+            container.Add(GetSettingsHeader("Filetypes"));
+            container.Add(GetSettingsSubHeader("Common"));
 
-            for (var i = 0; i < _settings.Types.Count; i++)
+            for (var i = 0; i < Settings.CommonFileTypes.Count; i++)
             {
-                var index = i;
-                var type = _settings.Types[index];
-                var typeContainer = new VisualElement
-                {
-                    style =
-                    {
-                        flexDirection = FlexDirection.Row,
-                        width = Length.Percent(100)
-                    }
-                };
-                typeContainer.Add(new Label
-                {
-                    text = type.TypeString,
-                    style = { flexGrow = 1}
-                });
-                
-                var activeToggle = new Toggle
-                {
-                    value = _settings.Types[index].Active,
-                    label = "Active",
-                    style = { flexShrink = 1 }
-                };
-                activeToggle.RegisterValueChangedCallback(evt =>
-                {
-                    var fileType = _settings.Types[index];
-                    fileType.Active = evt.newValue;
-                    _settings.Types[index] = fileType;
-                });
-                typeContainer.Add(activeToggle);
-                
-                typeContainer.Add(new Button(() =>
-                {
-                    _settings.Types.RemoveAt(index);
-                    RenderInterface();
-                })
-                {
-                    text = "Remove",
-                    style = { flexBasis = Length.Percent(20) }
-                });
-                container.Add(typeContainer);
+                var type = Settings.CommonFileTypes[i];
+                container.Add(GetFileTypeListEntry(type, i, true));
+            }
+
+            var customSubHeader = GetSettingsSubHeader("Custom");
+            customSubHeader.style.marginTop = 10;
+            container.Add(customSubHeader);
+            for (var i = 0; i < Settings.Types.Count; i++)
+            {
+                var type = Settings.Types[i];
+                container.Add(GetFileTypeListEntry(type, i, false));
             }
 
             var newTypeInput = new TextField
@@ -155,13 +109,14 @@ namespace OrphanChecker.Editor.Windows
                     Debug.LogError("Types must start with t:");
                     return;
                 }
-
+                
                 var newFileType = new FileType
                 {
                     TypeString = inputContent,
+                    HeaderText = CreateHeaderText(inputContent),
                     Active = true,
                 };
-                _settings.Types.Add(newFileType);
+                Settings.Types.Add(newFileType);
                 RenderInterface();
             })
             {
@@ -169,8 +124,113 @@ namespace OrphanChecker.Editor.Windows
                 style = { width = Length.Percent(100) }
             };
             container.Add(addNewTypeInputButton);
+
+            var checkProjectForTypesButton = new Button(() =>
+            {
+
+            })
+            {
+                text = "Check Project Types"
+            };
+            container.Add(checkProjectForTypesButton);
             
             return container;
+        }
+
+        private VisualElement GetFileTypeListEntry(FileType type, int index, bool common)
+        {
+            var container = new VisualElement
+            {
+                style = { flexDirection = FlexDirection.Row }
+            };
+            
+            var fileTypeStringInput = new TextField
+            {
+                tooltip = "The filetype for internal searching.",
+                value = type.TypeString,
+                style = { flexBasis = Length.Percent(30) }
+            };
+            fileTypeStringInput.RegisterValueChangedCallback((evt) =>
+            {
+                var fileType = Settings.CommonFileTypes[index];
+                fileType.TypeString = evt.newValue;
+                Settings.CommonFileTypes[index] = fileType;
+            });
+            container.Add(fileTypeStringInput);
+
+            var headerStringInput = new TextField
+            {
+                tooltip = "Header text, that will be shown in the main window.",
+                value = type.HeaderText,
+                style = { flexBasis = Length.Percent(30) }
+            };
+            headerStringInput.RegisterValueChangedCallback((evt) =>
+            {
+                var fileType = Settings.CommonFileTypes[index];
+                fileType.HeaderText = evt.newValue;
+                Settings.CommonFileTypes[index] = fileType;
+            });
+            container.Add(headerStringInput);
+            
+            var activeToggle = new Toggle
+            {
+                value = Settings.CommonFileTypes[index].Active,
+                label = "Active",
+                style = { flexGrow = 1 }
+            };
+            activeToggle.RegisterValueChangedCallback(evt =>
+            {
+                var fileType = Settings.CommonFileTypes[index];
+                fileType.Active = evt.newValue;
+                Settings.CommonFileTypes[index] = fileType;
+            });
+            container.Add(activeToggle);
+
+            if (!common)
+            {
+                container.Add(new Button(() =>
+                {
+                    Settings.Types.RemoveAt(index);
+                    RenderInterface();
+                })
+                {
+                    text = "Remove",
+                    style = { flexBasis = Length.Percent(20) }
+                });
+            }
+            
+            return container;
+        }
+        
+        private static Label GetSettingsHeader(string text)
+        {
+            return new Label
+            {
+                text = text,
+                style =
+                {
+                    fontSize = DefaultHeaderFontSize,
+                    marginBottom = 10,
+                }
+            };
+        }
+        
+        private static Label GetSettingsSubHeader(string text)
+        {
+            return new Label
+            {
+                text = text,
+                style =
+                {
+                    fontSize = DefaultSubHeaderFontSize,
+                    marginBottom = 10,
+                }
+            };
+        }
+
+        private static string CreateHeaderText(string text)
+        {
+            return $"{text.Split(":")[^1]}s";
         }
     }
 }

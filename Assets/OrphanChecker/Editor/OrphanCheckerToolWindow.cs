@@ -8,10 +8,9 @@ namespace OrphanChecker.Editor
 {
     public class OrphanCheckerToolWindow : EditorWindow
     {
-        private Settings _settings;
-        
-        private MainWindow _mainWindow;
-        private SettingsWindow _settingsWindow;
+        private Window _overviewWindow;
+        private Window _mainWindow;
+        private Window _settingsWindow;
         
         [MenuItem("Tools/Orphan Checker")]
         public static void ShowWindow()
@@ -23,12 +22,13 @@ namespace OrphanChecker.Editor
 
         public void CreateGUI()
         {
-            _settings = SettingsInstance.GetInstance();
-            
-            _mainWindow = new MainWindow(_settings);
-            _settingsWindow = new SettingsWindow(_settings);
+            _overviewWindow = new OverviewWindow();
+            _mainWindow = new MainWindow();
+            _settingsWindow = new SettingsWindow();
             
             var tabView = new TabView();
+            var overviewTab = new Tab("Overview");
+            overviewTab.Add(_overviewWindow.Create());
             var mainTab = new Tab("Main");
             mainTab.Add(_mainWindow.Create());
             var settingsTab = new Tab("Settings");
@@ -42,6 +42,7 @@ namespace OrphanChecker.Editor
                 }
             };
             
+            tabView.Add(overviewTab);
             tabView.Add(mainTab);
             tabView.Add(settingsTab);
             
