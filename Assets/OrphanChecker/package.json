@@ -1,0 +1,16 @@
+{
+    "name": "com.xpromus.orphanchecker",
+    "version": "0.1.0",
+    "displayName": "Orphan Checker",
+    "description": "Editor tool that scans the project and lists orphaned (unreferenced) assets such as materials and scripts.",
+    "unity": "6000.3",
+    "author": {
+        "name": "XPromus"
+    },
+    "keywords": [
+        "editor",
+        "tool",
+        "assets",
+        "orphan"
+    ]
+}
