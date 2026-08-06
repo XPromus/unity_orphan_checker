@@ -1,11 +1,12 @@
 using OrphanChecker.Data;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace OrphanChecker.Editor.Windows
 {
     public class SettingsWindow
     {
-        private readonly Settings _settings;
+        private Settings _settings;
         private VisualElement _settingsContainer;
         
         private const int DefaultHeaderFontSize = 24;
@@ -79,23 +80,53 @@ namespace OrphanChecker.Editor.Windows
             
             container.Add(new Label("Filetypes")
             {
-                style = { fontSize = DefaultHeaderFontSize }
+                style =
+                {
+                    fontSize = DefaultHeaderFontSize,
+                    marginBottom = 10
+                }
             });
-            foreach (var settingsType in _settings.Types)
+
+            for (var i = 0; i < _settings.Types.Count; i++)
             {
+                var index = i;
+                var type = _settings.Types[index];
                 var typeContainer = new VisualElement
                 {
-                    style = { flexDirection = FlexDirection.Row }
+                    style =
+                    {
+                        flexDirection = FlexDirection.Row,
+                        width = Length.Percent(100)
+                    }
                 };
                 typeContainer.Add(new Label
                 {
-                    text = settingsType,
-                    style = { width = Length.Percent(80) }
+                    text = type.TypeString,
+                    style = { flexGrow = 1}
                 });
-                typeContainer.Add(new Button
+                
+                var activeToggle = new Toggle
+                {
+                    value = _settings.Types[index].Active,
+                    label = "Active",
+                    style = { flexShrink = 1 }
+                };
+                activeToggle.RegisterValueChangedCallback(evt =>
+                {
+                    var fileType = _settings.Types[index];
+                    fileType.Active = evt.newValue;
+                    _settings.Types[index] = fileType;
+                });
+                typeContainer.Add(activeToggle);
+                
+                typeContainer.Add(new Button(() =>
+                {
+                    _settings.Types.RemoveAt(index);
+                    RenderInterface();
+                })
                 {
                     text = "Remove",
-                    style = { width = Length.Percent(20) }
+                    style = { flexBasis = Length.Percent(20) }
                 });
                 container.Add(typeContainer);
             }
@@ -103,10 +134,36 @@ namespace OrphanChecker.Editor.Windows
             var newTypeInput = new TextField
             {
                 label = "New Type",
-                style = { width = Length.Percent(100) }
+                style =
+                {
+                    width = Length.Percent(100),
+                    marginTop = 10
+                }
             };
             container.Add(newTypeInput);
-            var addNewTypeInputButton = new Button
+            var addNewTypeInputButton = new Button(() =>
+            {
+                var inputContent = newTypeInput.value;
+
+                if (inputContent.Length < 3)
+                {
+                    Debug.LogError("Types must have at least 3 characters");
+                    return;
+                }
+                if (!inputContent.StartsWith("t:"))
+                {
+                    Debug.LogError("Types must start with t:");
+                    return;
+                }
+
+                var newFileType = new FileType
+                {
+                    TypeString = inputContent,
+                    Active = true,
+                };
+                _settings.Types.Add(newFileType);
+                RenderInterface();
+            })
             {
                 text = "Add",
                 style = { width = Length.Percent(100) }

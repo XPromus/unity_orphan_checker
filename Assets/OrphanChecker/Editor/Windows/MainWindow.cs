@@ -109,7 +109,7 @@ namespace OrphanChecker.Editor.Windows
         {
             _orphanListContainer.Clear();
 
-            var scriptsContainer = CreateOrphanContainer("Materials", OrphanType.Script);
+            var scriptsContainer = CreateOrphanContainer("Scripts", OrphanType.Script);
             var prefabsContainer = CreateOrphanContainer("Prefabs", OrphanType.Prefab);
             var materialContainer = CreateOrphanContainer("Materials", OrphanType.Material);
             
