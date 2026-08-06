@@ -1,4 +1,4 @@
-namespace OrphanChecker
+namespace OrphanChecker.Data
 {
     public enum OrphanType
     {

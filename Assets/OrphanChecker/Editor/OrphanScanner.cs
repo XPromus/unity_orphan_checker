@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using OrphanChecker.Data;
 using UnityEditor;
 
 namespace OrphanChecker.Editor

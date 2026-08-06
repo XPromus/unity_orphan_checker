@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using NUnit.Framework;
+using OrphanChecker.Data;
 using UnityEditor;
 using UnityEditor.VersionControl;
 using UnityEngine;
