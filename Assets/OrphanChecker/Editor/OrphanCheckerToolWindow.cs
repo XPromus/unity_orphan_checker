@@ -36,6 +36,10 @@ namespace OrphanChecker.Editor
 
             tabView.activeTabChanged += (_, newTab) =>
             {
+                if (newTab.label.Equals("Overview"))
+                {
+                    _overviewWindow.FullReload();
+                }
                 if (newTab.label.Equals("Main"))
                 {
                     _mainWindow.FullReload();

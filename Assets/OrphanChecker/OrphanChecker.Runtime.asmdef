@@ -1,6 +1,5 @@
 {
     "name": "OrphanChecker.Runtime",
-    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

@@ -70,6 +70,8 @@ namespace OrphanChecker.Editor
                     {
                         Guid = guid,
                         Path = AssetDatabase.GUIDToAssetPath(guid),
+                        FilterType = filter,
+                        Size = new FileInfo(path).Length,
                         Type = type
                     });
                 }

@@ -11,19 +11,14 @@ namespace OrphanChecker.Editor.Windows
 {
     public class MainWindow : Window
     {
-        private List<Orphan> _orphans = new();
-        private Dictionary<string, int> _referenceCounts;
+        private readonly OrphanDatabase _orphanDatabase = OrphanDatabaseInstance.GetInstance();
+        
         private VisualElement _orphanListContainer;
-
-        private StyleSheet _styleSheet;
         
         private const int DefaultHeaderFontSize = 24;
         
         public override VisualElement Create()
         {
-            _styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/OrphanChecker/Editor/OrphanChecker.uss");
-            Container.styleSheets.Add(_styleSheet);
-            
             var checkButton = new Button(FullReload)
             {
                 text = "Check",
@@ -37,11 +32,11 @@ namespace OrphanChecker.Editor.Windows
 
             var clearSelectedButton = new Button(() =>
             {
-                for (var i = 0; i < _orphans.Count; i++)
+                for (var i = 0; i < _orphanDatabase.Orphans.Count; i++)
                 {
-                    var orphan = _orphans[i];
+                    var orphan = _orphanDatabase.Orphans[i];
                     orphan.Toggled = false;
-                    _orphans[i] = orphan;    
+                    _orphanDatabase.Orphans[i] = orphan;    
                 }
                 
                 RebuildOrphanList();
@@ -54,7 +49,7 @@ namespace OrphanChecker.Editor.Windows
 
             var moveSelectedToTrashButton = new Button(() =>
             {
-                var toDelete = _orphans.Where(o => o.Toggled).Select(o => o.Path).ToArray();
+                var toDelete = _orphanDatabase.Orphans.Where(o => o.Toggled).Select(o => o.Path).ToArray();
                 var failedDeletes = new List<string>();
                 var success = AssetDatabase.DeleteAssets(toDelete, failedDeletes);
                 AssetDatabase.Refresh();
@@ -70,7 +65,7 @@ namespace OrphanChecker.Editor.Windows
             
             var deleteSelectedButton = new Button(() =>
             {
-                var toDelete = _orphans.Where(o => o.Toggled).Select(o => o.Path).ToArray();
+                var toDelete = _orphanDatabase.Orphans.Where(o => o.Toggled).Select(o => o.Path).ToArray();
                 var failedDeletes = new List<string>();
                 var success = AssetDatabase.MoveAssetsToTrash(toDelete, failedDeletes);
                 AssetDatabase.Refresh();
@@ -92,13 +87,13 @@ namespace OrphanChecker.Editor.Windows
         {
             _orphanListContainer.Clear();
 
-            var scriptsContainer = CreateOrphanContainer("Scripts", OrphanType.Script);
-            var prefabsContainer = CreateOrphanContainer("Prefabs", OrphanType.Prefab);
-            var materialContainer = CreateOrphanContainer("Materials", OrphanType.Material);
+            var scriptsContainer = CreateOrphanContainer("Scripts", "t:MonoScript");
+            var prefabsContainer = CreateOrphanContainer("Prefabs", "t:Prefab");
+            var materialContainer = CreateOrphanContainer("Materials", "t:Material");
             
-            for (var i = 0; i < _orphans.Count; i++)
+            for (var i = 0; i < _orphanDatabase.Orphans.Count; i++)
             {
-                switch (_orphans[i].Type)
+                switch (_orphanDatabase.Orphans[i].Type)
                 {
                     case OrphanType.Script:
                         scriptsContainer.Add(CreateOrphanEntry(i));
@@ -123,7 +118,7 @@ namespace OrphanChecker.Editor.Windows
             _orphanListContainer.Add(Utils.CreateDivider());
         }
 
-        private VisualElement CreateOrphanContainer(string title, OrphanType type)
+        private VisualElement CreateOrphanContainer(string title, string type)
         {
             var container = new VisualElement();
             container.Add(new Label(title)
@@ -134,7 +129,7 @@ namespace OrphanChecker.Editor.Windows
                     unityFontStyleAndWeight = FontStyle.Bold
                 }
             });
-            var orphanTypeCounter = GetOrphanCount(type);
+            var orphanTypeCounter = _orphanDatabase.GetOrphanCountByType(type);
             var orphanTypeCounterLabel = new Label
             {
                 text = $"{orphanTypeCounter} orphans",
@@ -161,12 +156,12 @@ namespace OrphanChecker.Editor.Windows
                 }
             };
             
-            var toggle = new Toggle { value = _orphans[index].Toggled };
+            var toggle = new Toggle { value = _orphanDatabase.Orphans[index].Toggled };
             toggle.RegisterValueChangedCallback(evt =>
             {
-                var orphan = _orphans[index];
+                var orphan = _orphanDatabase.Orphans[index];
                 orphan.Toggled = evt.newValue;
-                _orphans[index] = orphan;
+                _orphanDatabase.Orphans[index] = orphan;
                             
                 RebuildOrphanList();
             });
@@ -174,7 +169,7 @@ namespace OrphanChecker.Editor.Windows
             
             var showButton = new Button(() =>
             {
-                Utils.PingAsset(_orphans[index].Path);
+                Utils.PingAsset(_orphanDatabase.Orphans[index].Path);
             })
             {
                 text = "Show"
@@ -183,7 +178,7 @@ namespace OrphanChecker.Editor.Windows
 
             var deleteButton = new Button(() =>
             {
-                AssetDatabase.DeleteAsset(_orphans[index].Path);
+                AssetDatabase.DeleteAsset(_orphanDatabase.Orphans[index].Path);
                 AssetDatabase.Refresh();
                 FullReload();
             })
@@ -195,7 +190,7 @@ namespace OrphanChecker.Editor.Windows
 
             var trashButton = new Button(() =>
             {
-                AssetDatabase.MoveAssetToTrash(_orphans[index].Path);
+                AssetDatabase.MoveAssetToTrash(_orphanDatabase.Orphans[index].Path);
                 AssetDatabase.Refresh();
                 FullReload();
             })
@@ -207,10 +202,10 @@ namespace OrphanChecker.Editor.Windows
             
             var orphanLabel = new Label
             {
-                text = Path.GetFileNameWithoutExtension(_orphans[index].Path),
+                text = Path.GetFileNameWithoutExtension(_orphanDatabase.Orphans[index].Path),
                 style =
                 {
-                    unityFontStyleAndWeight = _orphans[index].Toggled ? FontStyle.Bold : FontStyle.Normal
+                    unityFontStyleAndWeight = _orphanDatabase.Orphans[index].Toggled ? FontStyle.Bold : FontStyle.Normal
                 }
             };
             container.Add(orphanLabel);
@@ -220,14 +215,8 @@ namespace OrphanChecker.Editor.Windows
 
         public override void FullReload()
         {
-            _referenceCounts = OrphanScanner.BuildReferenceCounts();
-            _orphans = OrphanScanner.FindOrphans(_referenceCounts);
+            _orphanDatabase.UpdateOrphanList();
             RebuildOrphanList();
-        }
-
-        private int GetOrphanCount(OrphanType type)
-        {
-            return _orphans.Sum((orphan) => orphan.Type == type ? 1 : 0);
         }
     }
 }
