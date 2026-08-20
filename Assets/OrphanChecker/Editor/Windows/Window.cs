@@ -33,9 +33,9 @@ namespace OrphanChecker.Editor.Windows
 
         private static StyleSheet LoadStyleSheet()
         {
-            var scriptPath = AssetDatabase.GUIDToAssetPath(AssetDatabase.FindAssets($"t:Script {nameof(Window)}")[0]);
-            var directory = System.IO.Path.GetDirectoryName(scriptPath);
-            return AssetDatabase.LoadAssetAtPath<StyleSheet>(System.IO.Path.Combine(directory ?? throw new InvalidOperationException(), "OrphanChecker.uss"));
+            var stylesheet = AssetDatabase.GUIDToAssetPath("69014e32dbd5459f96d8b3f732693620");
+            return AssetDatabase.LoadAssetAtPath<StyleSheet>(stylesheet);
+
         }
     }
 }
