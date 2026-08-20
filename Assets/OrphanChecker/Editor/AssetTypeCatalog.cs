@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor;
 
-namespace OrphanChecker
+namespace OrphanChecker.Editor
 {
     public static class AssetTypeCatalog
     {

@@ -1,4 +1,4 @@
-using OrphanChecker.Data;
+using OrphanChecker.Editor.Data;
 using UnityEditor;
 using UnityEngine.UIElements;
 

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using OrphanChecker.Data;
+using OrphanChecker.Editor.Data;
 using UnityEngine;
 using UnityEditor;
 

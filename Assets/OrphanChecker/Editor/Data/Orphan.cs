@@ -1,4 +1,4 @@
-namespace OrphanChecker.Data
+namespace OrphanChecker.Editor.Data
 {
     public struct Orphan
     {

@@ -10,12 +10,24 @@ Open the tool window via **Tools > Orphan Checker**.
 - Use the **Show** button next to a material to highlight it in the Project window.
 - Use **Clear Selected** to reset all material toggles.
 
-## Packaging
+## Installation
 
-This folder is structured as a Unity Package Manager (UPM) package so it can be shared. It is currently developed in `Assets/` and uses asmdefs (`OrphanChecker.Runtime`, `OrphanChecker.Editor`), so no further code changes are required to package it.
+### Via Git URL
 
-To publish as a UPM package:
+1. Open **Window > Package Manager**
+2. Click **+** > **Add package from git URL**
+3. Enter: `https://github.com/XPromus/unity_orphan_checker.git`
 
-1. Copy the contents of this folder into `Packages/com.example.orphanchecker/` (or install it directly from a git URL pointing at the folder).
-2. Keep the `package.json` — it carries the package identity and version.
-3. Optionally bump the version in `package.json` and add a `CHANGELOG.md` / `LICENSE`.
+### Via Local Install
+
+Copy the contents of this folder into your project's `Packages/` directory:
+
+```
+YourProject/
+  Packages/
+    com.xpromus.orphanchecker/
+      package.json
+      Editor/
+      Data/
+      ...
+```

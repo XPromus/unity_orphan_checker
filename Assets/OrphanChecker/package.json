@@ -4,6 +4,7 @@
     "displayName": "Orphan Checker",
     "description": "Editor tool that scans the project and lists orphaned (unreferenced) assets such as materials and scripts.",
     "unity": "6000.3",
+    "license": "MIT",
     "author": {
         "name": "XPromus"
     },
@@ -12,5 +13,9 @@
         "tool",
         "assets",
         "orphan"
-    ]
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/XPromus/unity_orphan_checker.git"
+    }
 }

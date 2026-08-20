@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using OrphanChecker.Data;
+using OrphanChecker.Editor.Data;
 
 namespace OrphanChecker.Editor
 {
