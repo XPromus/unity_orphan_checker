@@ -12,21 +12,36 @@ namespace OrphanChecker.Editor.Windows
         private readonly OrphanDatabase _orphanDatabase = OrphanDatabaseInstance.GetInstance();
         
         private VisualElement _orphanListContainer;
+        private ScrollView _orphanListScrollView;
         
-        private const int DefaultHeaderFontSize = 24;
+        private const int DefaultHeaderFontSize = 20;
+        private const float Spacing = 10;
         
         public override VisualElement Create()
         {
             var checkButton = new Button(FullReload)
             {
                 text = "Check",
-                style = { width = Length.Percent(100) }
+                style =
+                {
+                    width = Length.Percent(100),
+                    marginBottom = Spacing,
+                }
             };
             
             Container.Add(checkButton);
 
             _orphanListContainer = new VisualElement();
-            Container.Add(_orphanListContainer);
+            _orphanListScrollView = new ScrollView(ScrollViewMode.Vertical)
+            {
+                style =
+                {
+                    flexGrow = 1,
+                    width = Length.Percent(100)
+                }
+            };
+            _orphanListScrollView.Add(_orphanListContainer);
+            Container.Add(_orphanListScrollView);
 
             var clearSelectedButton = new Button(() =>
             {
@@ -41,7 +56,11 @@ namespace OrphanChecker.Editor.Windows
             })
             {
                 text = "Clear Selected",
-                style = { width = Length.Percent(100) }
+                style =
+                {
+                    width = Length.Percent(100),
+                    marginTop = Spacing,
+                }
             };
             Container.Add(clearSelectedButton);
 
@@ -56,7 +75,10 @@ namespace OrphanChecker.Editor.Windows
             })
             {
                 text = "Selected To Trash",
-                style = { width = Length.Percent(100) }
+                style =
+                {
+                    width = Length.Percent(100),
+                }
             };
             moveSelectedToTrashButton.AddToClassList("deleteButton");
             Container.Add(moveSelectedToTrashButton);
@@ -72,7 +94,10 @@ namespace OrphanChecker.Editor.Windows
             })
             {
                 text = "Delete Selected",
-                style = { width = Length.Percent(100) }
+                style =
+                {
+                    width = Length.Percent(100),
+                }
             };
             deleteSelectedButton.AddToClassList("deleteButton");
             Container.Add(deleteSelectedButton);
@@ -84,7 +109,6 @@ namespace OrphanChecker.Editor.Windows
         private void RebuildOrphanList()
         {
             _orphanListContainer.Clear();
-            var scrollView = new ScrollView(ScrollViewMode.Vertical);
 
             var containerDictionary = new Dictionary<string, VisualElement>();
             foreach (var settingsCommonFileType in Settings.CommonFileTypes)
@@ -92,7 +116,7 @@ namespace OrphanChecker.Editor.Windows
                 if (settingsCommonFileType.Active)
                 {
                     var newOrphanContainer = CreateOrphanContainer(settingsCommonFileType.HeaderText, settingsCommonFileType.TypeString);
-                    scrollView.Add(newOrphanContainer);
+                    _orphanListContainer.Add(newOrphanContainer);
                     containerDictionary.Add(settingsCommonFileType.TypeString, newOrphanContainer);
                 }
             }
@@ -106,13 +130,34 @@ namespace OrphanChecker.Editor.Windows
                     containerDictionary[filterType].Add(orphanEntry);
                 }
             }
-            
-            _orphanListContainer.Add(scrollView);
         }
 
         private VisualElement CreateOrphanContainer(string title, string type)
         {
-            var container = new VisualElement();
+            var container = new VisualElement
+            {
+                style =
+                {
+                    //backgroundColor = Color.gray2,
+                    borderTopWidth = 1f,
+                    borderBottomWidth = 1f,
+                    borderLeftWidth = 1f,
+                    borderRightWidth = 1f,
+                    borderTopColor = Color.white,
+                    borderBottomColor = Color.white,
+                    borderLeftColor = Color.white,
+                    borderRightColor = Color.white,
+                    marginBottom = Spacing,
+                    paddingTop = 10,
+                    paddingBottom = 10,
+                    paddingLeft = 10,
+                    paddingRight = 10,
+                    borderTopLeftRadius = 5,
+                    borderTopRightRadius = 5,
+                    borderBottomRightRadius = 5,
+                    borderBottomLeftRadius = 5,
+                }
+            };
             container.Add(new Label(title)
             {
                 style =
@@ -127,7 +172,7 @@ namespace OrphanChecker.Editor.Windows
                 text = $"{orphanTypeCounter} orphans",
                 style =
                 {
-                    fontSize = 18,
+                    fontSize = 16,
                     unityFontStyleAndWeight = FontStyle.Bold,
                 }
             };

@@ -91,7 +91,7 @@ namespace OrphanChecker.Editor.Windows
                 style =
                 {
                     width = Length.Percent(100),
-                    marginTop = 10
+                    marginTop = 10,
                 }
             };
             container.Add(newTypeInput);
@@ -148,7 +148,11 @@ namespace OrphanChecker.Editor.Windows
             {
                 tooltip = "The filetype for internal searching.",
                 value = type.TypeString,
-                style = { flexBasis = Length.Percent(30) }
+                style =
+                {
+                    flexBasis = Length.Percent(30),
+                    marginRight = 10
+                }
             };
             fileTypeStringInput.RegisterValueChangedCallback((evt) =>
             {
@@ -162,7 +166,11 @@ namespace OrphanChecker.Editor.Windows
             {
                 tooltip = "Header text, that will be shown in the main window.",
                 value = type.HeaderText,
-                style = { flexBasis = Length.Percent(30) }
+                style =
+                {
+                    flexBasis = Length.Percent(30),
+                    marginRight = 10
+                }
             };
             headerStringInput.RegisterValueChangedCallback((evt) =>
             {
@@ -195,7 +203,7 @@ namespace OrphanChecker.Editor.Windows
                 })
                 {
                     text = "Remove",
-                    style = { flexBasis = Length.Percent(20) }
+                    style = { flexGrow = 1}
                 });
             }
             

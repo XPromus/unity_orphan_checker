@@ -50,6 +50,7 @@ namespace OrphanChecker.Editor
             tabView.Add(mainTab);
             tabView.Add(settingsTab);
             
+            tabView.activeTab = mainTab;
             rootVisualElement.Add(tabView);
         }
     }

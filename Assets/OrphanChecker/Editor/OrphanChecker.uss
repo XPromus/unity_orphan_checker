@@ -6,6 +6,34 @@
     color: #d8504b;
 }
 
+.unity-button {
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 5;
+    padding-right: 5;
+}
+
+.unity-base-field {
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.unity-base-text-field {
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.unity-float-field {
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 0;
+    padding-right: 0;
+}
+
 .deleteButton {
     background-color: #d8504b;
     color: white;
