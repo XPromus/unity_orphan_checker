@@ -31,7 +31,7 @@ namespace OrphanChecker.Data
             Types.AddRange(uniqueTokens.Select(FileTypeFromToken));
         }
 
-        private FileType FileTypeFromToken(string token)
+        private static FileType FileTypeFromToken(string token)
         {
             return new FileType
             {

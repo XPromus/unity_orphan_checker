@@ -13,7 +13,7 @@ namespace OrphanChecker
         /// <summary>
         /// This string is copied from the project tab search bar with all type filters enabled
         /// </summary>
-        public static readonly string[] CommonTypes = "t:AnimationClip t:AudioClip t:AudioMixer t:ComputeShader t:Font t:GUISkin t:GraphAsset t:VisualEffectAsset t:ScriptGraphAsset t:Material t:Mesh t:Model t:PhysicsMaterial t:Prefab t:Scene t:Script t:Shader t:Sprite t:Texture t:VideoClip t:VisualEffectAsset t:VisualEffectSubgraph".Split(" ");
+        public static readonly string[] CommonTypes = "t:AnimationClip t:AudioClip t:AudioMixer t:ComputeShader t:Font t:GUISkin t:GraphAsset t:VisualEffectAsset t:ScriptGraphAsset t:Material t:Mesh t:Model t:PhysicsMaterial t:Prefab t:Scene t:Script t:Shader t:Sprite t:Texture t:VideoClip t:VisualEffectSubgraph".Split(" ");
         
         public static List<string> GetAssetTypeTokens()
         {

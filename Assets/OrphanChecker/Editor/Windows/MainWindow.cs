@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using OrphanChecker.Data;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -86,36 +84,30 @@ namespace OrphanChecker.Editor.Windows
         private void RebuildOrphanList()
         {
             _orphanListContainer.Clear();
+            var scrollView = new ScrollView(ScrollViewMode.Vertical);
 
-            var scriptsContainer = CreateOrphanContainer("Scripts", "t:MonoScript");
-            var prefabsContainer = CreateOrphanContainer("Prefabs", "t:Prefab");
-            var materialContainer = CreateOrphanContainer("Materials", "t:Material");
-            
-            for (var i = 0; i < _orphanDatabase.Orphans.Count; i++)
+            var containerDictionary = new Dictionary<string, VisualElement>();
+            foreach (var settingsCommonFileType in Settings.CommonFileTypes)
             {
-                switch (_orphanDatabase.Orphans[i].Type)
+                if (settingsCommonFileType.Active)
                 {
-                    case OrphanType.Script:
-                        scriptsContainer.Add(CreateOrphanEntry(i));
-                        break;
-                    case OrphanType.Prefab:
-                        prefabsContainer.Add(CreateOrphanEntry(i));
-                        break;
-                    case OrphanType.Material:
-                        materialContainer.Add(CreateOrphanEntry(i));
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
+                    var newOrphanContainer = CreateOrphanContainer(settingsCommonFileType.HeaderText, settingsCommonFileType.TypeString);
+                    scrollView.Add(newOrphanContainer);
+                    containerDictionary.Add(settingsCommonFileType.TypeString, newOrphanContainer);
                 }
             }
             
-            _orphanListContainer.Add(Utils.CreateDivider());
-            _orphanListContainer.Add(scriptsContainer);
-            _orphanListContainer.Add(Utils.CreateDivider());
-            _orphanListContainer.Add(prefabsContainer);
-            _orphanListContainer.Add(Utils.CreateDivider());
-            _orphanListContainer.Add(materialContainer);
-            _orphanListContainer.Add(Utils.CreateDivider());
+            for (var i = 0; i < _orphanDatabase.Orphans.Count; i++)
+            {
+                var orphanEntry = CreateOrphanEntry(i);
+                var filterType = _orphanDatabase.Orphans[i].FilterType;
+                if (containerDictionary.ContainsKey(filterType))
+                {
+                    containerDictionary[filterType].Add(orphanEntry);
+                }
+            }
+            
+            _orphanListContainer.Add(scrollView);
         }
 
         private VisualElement CreateOrphanContainer(string title, string type)
