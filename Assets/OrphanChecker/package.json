@@ -16,6 +16,6 @@
     ],
     "repository": {
         "type": "git",
-        "url": "https://github.com/XPromus/unity_orphan_checker.git"
+        "url": "https://github.com/XPromus/unity_orphan_checker.git?path=Assets/OrphanChecker"
     }
 }

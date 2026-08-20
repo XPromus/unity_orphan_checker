@@ -16,7 +16,7 @@ Open the tool window via **Tools > Orphan Checker**.
 
 1. Open **Window > Package Manager**
 2. Click **+** > **Add package from git URL**
-3. Enter: `https://github.com/XPromus/unity_orphan_checker.git`
+3. Enter: `https://github.com/XPromus/unity_orphan_checker.git?path=Assets/OrphanChecker`
 
 ### Via Local Install
 
@@ -28,6 +28,5 @@ YourProject/
     com.xpromus.orphanchecker/
       package.json
       Editor/
-      Data/
       ...
 ```
