@@ -6,7 +6,6 @@ namespace OrphanChecker.Editor.Data
         public string Path;
         public string FilterType;
         public long Size;
-        public OrphanType Type;
         public bool Toggled;
     }
 }

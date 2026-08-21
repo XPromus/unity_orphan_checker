@@ -45,9 +45,17 @@ namespace OrphanChecker.Editor
         public static List<Orphan> FindOrphans(Dictionary<string, int> counts)
         {
             var orphans = new List<Orphan>();
-            AddOrphans(counts, orphans, "t:Material", OrphanType.Material);
-            AddOrphans(counts, orphans, "t:Prefab", OrphanType.Prefab);
-            AddOrphans(counts, orphans, "t:MonoScript", OrphanType.Script, IsMonoBehaviourScript);
+            foreach (var commonType in AssetTypeCatalog.CommonTypes)
+            {
+                if (commonType.Equals("t:Script"))
+                {
+                    AddOrphans(counts, orphans, commonType, IsMonoBehaviourScript);
+                }
+                else
+                {
+                    AddOrphans(counts, orphans, commonType);
+                }
+            }
             return orphans;
         }
 
@@ -56,7 +64,6 @@ namespace OrphanChecker.Editor
             Dictionary<string, int> counts,
             List<Orphan> orphans,
             string filter,
-            OrphanType type,
             Func<string, bool> isValid = null
         )
         {
@@ -72,7 +79,6 @@ namespace OrphanChecker.Editor
                         Path = AssetDatabase.GUIDToAssetPath(guid),
                         FilterType = filter,
                         Size = new FileInfo(path).Length,
-                        Type = type
                     });
                 }
             }
