@@ -28,10 +28,15 @@ namespace OrphanChecker.Editor.Windows
                     marginBottom = Spacing,
                 }
             };
-            
             Container.Add(checkButton);
-
-            _orphanListContainer = new VisualElement();
+            
+            _orphanListContainer = new VisualElement
+            {
+                style =
+                {
+                    marginRight = 10,
+                }
+            };
             _orphanListScrollView = new ScrollView(ScrollViewMode.Vertical)
             {
                 style =
@@ -43,6 +48,17 @@ namespace OrphanChecker.Editor.Windows
             _orphanListScrollView.Add(_orphanListContainer);
             Container.Add(_orphanListScrollView);
 
+            var selectAllButton = new Button(SelectAll)
+            {
+                text = "Select All",
+                style =
+                {
+                    width = Length.Percent(100),
+                    marginTop = Spacing,
+                }
+            };
+            Container.Add(selectAllButton);
+            
             var clearSelectedButton = new Button(() =>
             {
                 for (var i = 0; i < _orphanDatabase.Orphans.Count; i++)
@@ -58,8 +74,7 @@ namespace OrphanChecker.Editor.Windows
                 text = "Clear Selected",
                 style =
                 {
-                    width = Length.Percent(100),
-                    marginTop = Spacing,
+                    width = Length.Percent(100)
                 }
             };
             Container.Add(clearSelectedButton);
@@ -253,6 +268,18 @@ namespace OrphanChecker.Editor.Windows
         public override void FullReload()
         {
             _orphanDatabase.UpdateOrphanList();
+            RebuildOrphanList();
+        }
+
+        private void SelectAll()
+        {
+            for (var i = 0; i < _orphanDatabase.Orphans.Count; i++)
+            {
+                var orphan = _orphanDatabase.Orphans[i];
+                orphan.Toggled = true;
+                _orphanDatabase.Orphans[i] = orphan;
+            }
+            
             RebuildOrphanList();
         }
     }
