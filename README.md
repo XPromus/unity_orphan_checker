@@ -36,7 +36,9 @@ The scanner reads scannable asset files (scenes, prefabs, materials, animation c
 
 1. Open **Window > Package Manager**
 2. Click **+** > **Add package from git URL**
-3. Enter: `https://github.com/XPromus/unity_orphan_checker.git?path=Assets/OrphanChecker`
+3. Enter: `https://github.com/XPromus/unity_orphan_checker.git?path=Assets/OrphanChecker#v0.2.0`
+
+See [Releases](https://github.com/XPromus/unity_orphan_checker/releases) for all versions.
 
 ### Via Local Install
 
