@@ -1,9 +1,12 @@
+using System;
+
 namespace OrphanChecker.Editor.Data
 {
+    [Serializable]
     public struct FileType
     {
-        public string TypeString;
-        public string HeaderText;
-        public bool Active;
+        public string typeString;
+        public string headerText;
+        public bool active;
     }
 }

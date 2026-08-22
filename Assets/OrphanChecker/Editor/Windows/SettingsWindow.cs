@@ -18,7 +18,11 @@ namespace OrphanChecker.Editor.Windows
             
             RenderInterface();
             
-            var applyButton = new Button(RenderInterface)
+            var applyButton = new Button(() =>
+            {
+                Settings.Save();
+                RenderInterface();
+            })
             {
                 text = "Apply",
                 style = { width = Length.Percent(100) }
@@ -43,7 +47,7 @@ namespace OrphanChecker.Editor.Windows
             _settingsContainer.Add(GetSettingsHeader("Visuals"));
             var fontScaleInput = new FloatField
             {
-                value = 1f,
+                value = Settings.scale,
                 tooltip = "Set the scale of the front. Default is 1",
                 style =
                 {
@@ -53,7 +57,7 @@ namespace OrphanChecker.Editor.Windows
             };
             fontScaleInput.RegisterValueChangedCallback(evt =>
             {
-                Settings.Scale = evt.newValue;
+                Settings.scale = evt.newValue;
             });
             
             _settingsContainer.Add(fontScaleInput);
@@ -71,17 +75,17 @@ namespace OrphanChecker.Editor.Windows
             container.Add(GetSettingsHeader("Filetypes"));
             container.Add(GetSettingsSubHeader("Common"));
 
-            for (var i = 0; i < Settings.CommonFileTypes.Count; i++)
+            for (var i = 0; i < Settings.commonFileTypes.Count; i++)
             {
-                container.Add(GetFileTypeListEntry(Settings.CommonFileTypes, i, true));
+                container.Add(GetFileTypeListEntry(Settings.commonFileTypes, i, true));
             }
 
             var customSubHeader = GetSettingsSubHeader("Custom");
             customSubHeader.style.marginTop = 10;
             container.Add(customSubHeader);
-            for (var i = 0; i < Settings.Types.Count; i++)
+            for (var i = 0; i < Settings.types.Count; i++)
             {
-                container.Add(GetFileTypeListEntry(Settings.Types, i, false));
+                container.Add(GetFileTypeListEntry(Settings.types, i, false));
             }
 
             var newTypeInput = new TextField
@@ -91,6 +95,7 @@ namespace OrphanChecker.Editor.Windows
                 {
                     width = Length.Percent(100),
                     marginTop = 10,
+                    marginBottom = 10,
                 }
             };
             container.Add(newTypeInput);
@@ -111,11 +116,12 @@ namespace OrphanChecker.Editor.Windows
                 
                 var newFileType = new FileType
                 {
-                    TypeString = inputContent,
-                    HeaderText = CreateHeaderText(inputContent),
-                    Active = true,
+                    typeString = inputContent,
+                    headerText = CreateHeaderText(inputContent),
+                    active = true,
                 };
-                Settings.Types.Add(newFileType);
+                Settings.types.Add(newFileType);
+                Settings.Save();
                 RenderInterface();
             })
             {
@@ -146,7 +152,7 @@ namespace OrphanChecker.Editor.Windows
             var fileTypeStringInput = new TextField
             {
                 tooltip = "The filetype for internal searching.",
-                value = sourceList[index].TypeString,
+                value = sourceList[index].typeString,
                 style =
                 {
                     flexBasis = Length.Percent(30),
@@ -156,7 +162,7 @@ namespace OrphanChecker.Editor.Windows
             fileTypeStringInput.RegisterValueChangedCallback((evt) =>
             {
                 var fileType = sourceList[index];
-                fileType.TypeString = evt.newValue;
+                fileType.typeString = evt.newValue;
                 sourceList[index] = fileType;
             });
             container.Add(fileTypeStringInput);
@@ -164,7 +170,7 @@ namespace OrphanChecker.Editor.Windows
             var headerStringInput = new TextField
             {
                 tooltip = "Header text, that will be shown in the main window.",
-                value = sourceList[index].HeaderText,
+                value = sourceList[index].headerText,
                 style =
                 {
                     flexBasis = Length.Percent(30),
@@ -174,21 +180,21 @@ namespace OrphanChecker.Editor.Windows
             headerStringInput.RegisterValueChangedCallback((evt) =>
             {
                 var fileType = sourceList[index];
-                fileType.HeaderText = evt.newValue;
+                fileType.headerText = evt.newValue;
                 sourceList[index] = fileType;
             });
             container.Add(headerStringInput);
             
             var activeToggle = new Toggle
             {
-                value = sourceList[index].Active,
+                value = sourceList[index].active,
                 label = "Active",
                 style = { flexGrow = 1 }
             };
             activeToggle.RegisterValueChangedCallback(evt =>
             {
                 var fileType = sourceList[index];
-                fileType.Active = evt.newValue;
+                fileType.active = evt.newValue;
                 sourceList[index] = fileType;
             });
             container.Add(activeToggle);
@@ -197,7 +203,8 @@ namespace OrphanChecker.Editor.Windows
             {
                 container.Add(new Button(() =>
                 {
-                    Settings.Types.RemoveAt(index);
+                    Settings.types.RemoveAt(index);
+                    Settings.Save();
                     RenderInterface();
                 })
                 {

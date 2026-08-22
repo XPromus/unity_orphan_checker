@@ -126,13 +126,13 @@ namespace OrphanChecker.Editor.Windows
             _orphanListContainer.Clear();
 
             var containerDictionary = new Dictionary<string, VisualElement>();
-            foreach (var settingsCommonFileType in Settings.CommonFileTypes)
+            foreach (var settingsCommonFileType in Settings.commonFileTypes)
             {
-                if (settingsCommonFileType.Active)
+                if (settingsCommonFileType.active)
                 {
-                    var newOrphanContainer = CreateOrphanContainer(settingsCommonFileType.HeaderText, settingsCommonFileType.TypeString);
+                    var newOrphanContainer = CreateOrphanContainer(settingsCommonFileType.headerText, settingsCommonFileType.typeString);
                     _orphanListContainer.Add(newOrphanContainer);
-                    containerDictionary.Add(settingsCommonFileType.TypeString, newOrphanContainer);
+                    containerDictionary.Add(settingsCommonFileType.typeString, newOrphanContainer);
                 }
             }
             
@@ -177,7 +177,7 @@ namespace OrphanChecker.Editor.Windows
             {
                 style =
                 {
-                    fontSize = DefaultHeaderFontSize * Settings.Scale,
+                    fontSize = DefaultHeaderFontSize * Settings.scale,
                     unityFontStyleAndWeight = FontStyle.Bold
                 }
             });
