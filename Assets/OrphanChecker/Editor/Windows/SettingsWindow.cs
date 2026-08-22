@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using OrphanChecker.Editor.Data;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -72,8 +73,7 @@ namespace OrphanChecker.Editor.Windows
 
             for (var i = 0; i < Settings.CommonFileTypes.Count; i++)
             {
-                var type = Settings.CommonFileTypes[i];
-                container.Add(GetFileTypeListEntry(type, i, true));
+                container.Add(GetFileTypeListEntry(Settings.CommonFileTypes, i, true));
             }
 
             var customSubHeader = GetSettingsSubHeader("Custom");
@@ -81,8 +81,7 @@ namespace OrphanChecker.Editor.Windows
             container.Add(customSubHeader);
             for (var i = 0; i < Settings.Types.Count; i++)
             {
-                var type = Settings.Types[i];
-                container.Add(GetFileTypeListEntry(type, i, false));
+                container.Add(GetFileTypeListEntry(Settings.Types, i, false));
             }
 
             var newTypeInput = new TextField
@@ -137,7 +136,7 @@ namespace OrphanChecker.Editor.Windows
             return container;
         }
 
-        private VisualElement GetFileTypeListEntry(FileType type, int index, bool common)
+        private VisualElement GetFileTypeListEntry(IList<FileType> sourceList, int index, bool common)
         {
             var container = new VisualElement
             {
@@ -147,7 +146,7 @@ namespace OrphanChecker.Editor.Windows
             var fileTypeStringInput = new TextField
             {
                 tooltip = "The filetype for internal searching.",
-                value = type.TypeString,
+                value = sourceList[index].TypeString,
                 style =
                 {
                     flexBasis = Length.Percent(30),
@@ -156,16 +155,16 @@ namespace OrphanChecker.Editor.Windows
             };
             fileTypeStringInput.RegisterValueChangedCallback((evt) =>
             {
-                var fileType = Settings.CommonFileTypes[index];
+                var fileType = sourceList[index];
                 fileType.TypeString = evt.newValue;
-                Settings.CommonFileTypes[index] = fileType;
+                sourceList[index] = fileType;
             });
             container.Add(fileTypeStringInput);
 
             var headerStringInput = new TextField
             {
                 tooltip = "Header text, that will be shown in the main window.",
-                value = type.HeaderText,
+                value = sourceList[index].HeaderText,
                 style =
                 {
                     flexBasis = Length.Percent(30),
@@ -174,23 +173,23 @@ namespace OrphanChecker.Editor.Windows
             };
             headerStringInput.RegisterValueChangedCallback((evt) =>
             {
-                var fileType = Settings.CommonFileTypes[index];
+                var fileType = sourceList[index];
                 fileType.HeaderText = evt.newValue;
-                Settings.CommonFileTypes[index] = fileType;
+                sourceList[index] = fileType;
             });
             container.Add(headerStringInput);
             
             var activeToggle = new Toggle
             {
-                value = Settings.CommonFileTypes[index].Active,
+                value = sourceList[index].Active,
                 label = "Active",
                 style = { flexGrow = 1 }
             };
             activeToggle.RegisterValueChangedCallback(evt =>
             {
-                var fileType = Settings.CommonFileTypes[index];
+                var fileType = sourceList[index];
                 fileType.Active = evt.newValue;
-                Settings.CommonFileTypes[index] = fileType;
+                sourceList[index] = fileType;
             });
             container.Add(activeToggle);
 

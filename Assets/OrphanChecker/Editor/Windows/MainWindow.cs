@@ -83,7 +83,7 @@ namespace OrphanChecker.Editor.Windows
             {
                 var toDelete = _orphanDatabase.Orphans.Where(o => o.Toggled).Select(o => o.Path).ToArray();
                 var failedDeletes = new List<string>();
-                var success = AssetDatabase.DeleteAssets(toDelete, failedDeletes);
+                var success = AssetDatabase.MoveAssetsToTrash(toDelete, failedDeletes);
                 AssetDatabase.Refresh();
                 
                 FullReload();
@@ -102,7 +102,7 @@ namespace OrphanChecker.Editor.Windows
             {
                 var toDelete = _orphanDatabase.Orphans.Where(o => o.Toggled).Select(o => o.Path).ToArray();
                 var failedDeletes = new List<string>();
-                var success = AssetDatabase.MoveAssetsToTrash(toDelete, failedDeletes);
+                var success = AssetDatabase.DeleteAssets(toDelete, failedDeletes);
                 AssetDatabase.Refresh();
 
                 FullReload();
