@@ -10,6 +10,8 @@ namespace OrphanChecker.Editor.Data
     public class Settings
     {
         public float scale = 1f;
+        public bool sortByOrphanCount = true;
+        
         public List<FileType> types = new();
         public List<FileType> commonFileTypes = new();
 

@@ -145,6 +145,24 @@ namespace OrphanChecker.Editor.Windows
                     containerDictionary[filterType].Add(orphanEntry);
                 }
             }
+
+            if (Settings.sortByOrphanCount)
+            {
+                _orphanListContainer.Sort((a, b) =>
+                {
+                    if (a.childCount > b.childCount)
+                    {
+                        return -1;
+                    }
+
+                    if (a.childCount == b.childCount)
+                    {
+                        return 0;
+                    }
+
+                    return 1;
+                });
+            }
         }
 
         private VisualElement CreateOrphanContainer(string title, string type)

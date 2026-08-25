@@ -44,7 +44,17 @@ namespace OrphanChecker.Editor.Windows
         {
             _settingsContainer.Clear();
             
-            _settingsContainer.Add(GetSettingsHeader("Visuals"));
+            _settingsContainer.Add(GetSettingsHeader("Application"));
+            var sortByOrphanCountToggle = new Toggle("Sort by Orphancount")
+            {
+                value = Settings.sortByOrphanCount
+            };
+            sortByOrphanCountToggle.RegisterValueChangedCallback(evt =>
+            {
+                Settings.sortByOrphanCount = evt.newValue;
+            });
+            _settingsContainer.Add(sortByOrphanCountToggle);
+            
             var fontScaleInput = new FloatField
             {
                 value = Settings.scale,
