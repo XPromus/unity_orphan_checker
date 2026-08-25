@@ -87,7 +87,7 @@ namespace OrphanChecker.Editor.Controls
                 var segments = SegmentsForSlice(i, total);
                 segmentCounts[i] = segments;
                 vertexCount += segments + 2;
-                indexCount += segments * 6;
+                indexCount += segments * 3;
             }
 
             var mesh = context.Allocate(vertexCount, indexCount);
