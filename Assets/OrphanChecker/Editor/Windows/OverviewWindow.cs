@@ -11,17 +11,35 @@ namespace OrphanChecker.Editor.Windows
         {
             Container.Add(new Label("Overview"));
 
-            var sortedOrphanCategories = _orphanDatabase.GetAllOrphanCounts();
+            Container.Add(CreateSizeOfOrphansPanel());
+            
+            /*
             foreach (var orphan in sortedOrphanCategories)
             {
                 var orphanContainer = new VisualElement();
                 orphanContainer.Add(new Label(orphan.FilterType));
                 orphanContainer.Add(new Label(orphan.Orphans.Count.ToString()));
-                orphanContainer.Add(new Label(Utils.FormatBytes(orphan.Orphans.Sum(o => o.Size))));
+                orphanContainer.Add(new Label()));
                 Container.Add(orphanContainer);
             }
+            */
             
             return Container;
+        }
+
+        private VisualElement CreateSizeOfOrphansPanel()
+        {
+            var sortedOrphanCategories = _orphanDatabase.GetAllOrphanCounts();
+            
+            var container = new VisualElement();
+            var size = Utils.FormatBytes(sortedOrphanCategories.Sum(orphanType =>
+            {
+                return orphanType.Orphans.Sum(orphan => orphan.Size);
+            }));
+            
+            container.Add(new Label($"Size of all orphans: {size}"));
+            
+            return container;
         }
 
         public override void FullReload()
