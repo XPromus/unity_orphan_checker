@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using OrphanChecker.Editor.Windows;
 using UnityEditor;
 using UnityEngine;
@@ -7,9 +9,8 @@ namespace OrphanChecker.Editor
 {
     public class OrphanCheckerToolWindow : EditorWindow
     {
-        private Window _overviewWindow;
-        private Window _mainWindow;
-        private Window _settingsWindow;
+        private readonly Dictionary<string, Window> _windows = new();
+        private readonly Dictionary<string, Tab> _tabs = new();
         
         [MenuItem("Tools/Orphan Checker")]
         public static void ShowWindow()
@@ -21,35 +22,32 @@ namespace OrphanChecker.Editor
 
         public void CreateGUI()
         {
-            _overviewWindow = new OverviewWindow();
-            _mainWindow = new MainWindow();
-            _settingsWindow = new SettingsWindow();
+            var tabs = WindowRegistry.GetTabs();
+            if (tabs.Count == 0)
+            {
+                Debug.LogError("[OrphanChecker] No [Window] types found.");
+                return;
+            }
             
             var tabView = new TabView();
-            var overviewTab = new Tab("Overview");
-            overviewTab.Add(_overviewWindow.Create());
-            var mainTab = new Tab("Main");
-            mainTab.Add(_mainWindow.Create());
-            var settingsTab = new Tab("Settings");
-            settingsTab.Add(_settingsWindow.Create());
+            
+            foreach (var entry in tabs)
+            {
+                var newTab = new Tab(entry.Label);
+                newTab.Add(entry.Instance.Create());
+                tabView.Add(newTab);
+
+                _windows[entry.Label] = entry.Instance;
+                _tabs[entry.Label] = newTab;
+            }
 
             tabView.activeTabChanged += (_, newTab) =>
             {
-                if (newTab.label.Equals("Overview"))
-                {
-                    _overviewWindow.FullReload();
-                }
-                if (newTab.label.Equals("Main"))
-                {
-                    _mainWindow.FullReload();
-                }
+                _windows[newTab.label].FullReload();
             };
-            
-            tabView.Add(overviewTab);
-            tabView.Add(mainTab);
-            tabView.Add(settingsTab);
-            
-            tabView.activeTab = mainTab;
+
+            var defaultLabel = tabs.FirstOrDefault(t => t.IsDefault).Label ?? tabs[0].Label;
+            tabView.activeTab = _tabs[defaultLabel];
             rootVisualElement.Add(tabView);
         }
     }

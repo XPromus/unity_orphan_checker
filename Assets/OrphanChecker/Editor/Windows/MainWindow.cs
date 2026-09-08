@@ -7,6 +7,7 @@ using UnityEngine.UIElements;
 
 namespace OrphanChecker.Editor.Windows
 {
+    [Window("Main", 1, true)]
     public class MainWindow : Window
     {
         private readonly OrphanDatabase _orphanDatabase = OrphanDatabaseInstance.GetInstance();

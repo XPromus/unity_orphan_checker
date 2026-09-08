@@ -5,6 +5,7 @@ using UnityEngine.UIElements;
 
 namespace OrphanChecker.Editor.Windows
 {
+    [Window("Settings", 3)]
     public class SettingsWindow : Window
     {
         private VisualElement _settingsContainer;
@@ -37,7 +38,8 @@ namespace OrphanChecker.Editor.Windows
 
         public override void FullReload()
         {
-            throw new System.NotImplementedException();
+            Container.Clear();
+            Create();
         }
 
         private void RenderInterface()
