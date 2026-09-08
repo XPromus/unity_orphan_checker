@@ -199,13 +199,22 @@ namespace OrphanChecker.Editor.Windows
                     unityFontStyleAndWeight = FontStyle.Bold
                 }
             });
+
+            var orphanSize = GetSizeOfOrphans(type);
+            if (orphanSize > 0)
+            {
+                var sizeString = Utils.FormatBytes(orphanSize);
+                container.Add(new Label(sizeString));
+            }
+            
             var orphanTypeCounter = _orphanDatabase.GetOrphanCountByType(type);
             var orphanTypeCounterLabel = new Label
             {
                 text = $"{orphanTypeCounter} orphans",
-                style =
+                style = 
                 {
                     fontSize = 16,
+                    marginTop = orphanSize > 0 ? Spacing : 0,
                     unityFontStyleAndWeight = FontStyle.Bold,
                 }
             };
@@ -226,7 +235,11 @@ namespace OrphanChecker.Editor.Windows
                 }
             };
             
-            var toggle = new Toggle { value = _orphanDatabase.Orphans[index].Toggled };
+            var toggle = new Toggle
+            {
+                value = _orphanDatabase.Orphans[index].Toggled,
+                style = { marginRight = Spacing }
+            };
             toggle.RegisterValueChangedCallback(evt =>
             {
                 var orphan = _orphanDatabase.Orphans[index];
@@ -269,6 +282,17 @@ namespace OrphanChecker.Editor.Windows
             };
             trashButton.AddToClassList("deleteButton");
             container.Add(trashButton);
+
+            var orphanSizeLabel = new Label
+            {
+                text = $"Size: {Utils.FormatBytes(_orphanDatabase.Orphans[index].Size)}",
+                style =
+                {
+                    marginLeft = Spacing,
+                    marginRight = Spacing
+                }
+            };
+            container.Add(orphanSizeLabel);
             
             var orphanLabel = new Label
             {
@@ -299,6 +323,12 @@ namespace OrphanChecker.Editor.Windows
             }
             
             RebuildOrphanList();
+        }
+
+        private long GetSizeOfOrphans(string type)
+        {
+            var orphans = _orphanDatabase.GetOrphansByType(type);
+            return orphans.Sum(o => o.Size);
         }
     }
 }

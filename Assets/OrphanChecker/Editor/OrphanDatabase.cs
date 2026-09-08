@@ -44,6 +44,11 @@ namespace OrphanChecker.Editor
                 .OrderByDescending(g => g.Orphans.Count)
                 .ToList();
         }
+
+        public List<Orphan> GetOrphansByType(string type)
+        {
+            return Orphans.Where(o => o.FilterType.Equals(type)).ToList();
+        }
     }
 
     public static class OrphanDatabaseInstance
